@@ -772,35 +772,36 @@ function percentile(values, ratio) {
 }
 
 function scoreCoverageCap(coverageRatio) {
-  if (coverageRatio < 0.22) return 48;
-  if (coverageRatio < 0.36) return 62;
-  if (coverageRatio < 0.52) return 78;
-  if (coverageRatio < 0.66) return 90;
+  if (coverageRatio < 0.18) return 58;
+  if (coverageRatio < 0.3) return 72;
+  if (coverageRatio < 0.45) return 84;
+  if (coverageRatio < 0.58) return 93;
   return 99;
 }
 
 function scoreLengthCap(lengthRatio) {
-  if (lengthRatio < 0.3) return 45;
-  if (lengthRatio < 0.45) return 60;
-  if (lengthRatio < 0.62) return 76;
-  if (lengthRatio < 0.76) return 90;
+  if (lengthRatio < 0.24) return 55;
+  if (lengthRatio < 0.38) return 70;
+  if (lengthRatio < 0.54) return 84;
+  if (lengthRatio < 0.68) return 93;
   return 99;
 }
 
 function scoreTotal({ alignment, speedScore, coverageRatio, lengthRatio, onPathRatio }) {
   const completionScore = clamp(
     (
-      coverageRatio * 0.62 +
-      clamp(lengthRatio, 0, 0.95) / 0.95 * 0.26 +
-      onPathRatio * 0.12
+      clamp(coverageRatio, 0, 0.75) / 0.75 * 0.56 +
+      clamp(lengthRatio, 0, 0.85) / 0.85 * 0.28 +
+      clamp(onPathRatio, 0, 0.55) / 0.55 * 0.16
     ) * 100,
     0,
     100,
   );
-  const base = alignment * 0.52 + speedScore * 0.22 + completionScore * 0.26;
-  const incompletePenalty = coverageRatio < 0.34 || lengthRatio < 0.45 || onPathRatio < 0.16 ? 6 : 0;
+  const quality = alignment * 0.45 + speedScore * 0.2 + completionScore * 0.35;
+  const experienceScore = 70 + quality * 0.29;
+  const incompletePenalty = coverageRatio < 0.18 || lengthRatio < 0.26 || onPathRatio < 0.08 ? 10 : 0;
 
-  return Math.round(clamp(base - incompletePenalty + 3, 30, 99));
+  return Math.round(clamp(experienceScore - incompletePenalty, 58, 99));
 }
 
 function scoreSpeed(seconds) {
