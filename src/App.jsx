@@ -788,16 +788,19 @@ function scoreLengthCap(lengthRatio) {
 }
 
 function scoreTotal({ alignment, speedScore, coverageRatio, lengthRatio, onPathRatio }) {
-  const clearlyIncomplete = coverageRatio < 0.24 || lengthRatio < 0.38 || onPathRatio < 0.14;
-  const base = alignment * 0.62 + speedScore * 0.38;
+  const completionScore = clamp(
+    (
+      coverageRatio * 0.62 +
+      clamp(lengthRatio, 0, 1.05) / 1.05 * 0.26 +
+      onPathRatio * 0.12
+    ) * 100,
+    0,
+    100,
+  );
+  const base = alignment * 0.52 + speedScore * 0.22 + completionScore * 0.26;
+  const incompletePenalty = coverageRatio < 0.42 || lengthRatio < 0.55 || onPathRatio < 0.22 ? 8 : 0;
 
-  if (clearlyIncomplete) {
-    return Math.round(Math.min(base + 18, alignment + 24, 89));
-  }
-
-  const normalScore = 90 + Math.round(clamp((base - 28) / 62, 0, 1) * 6);
-  const bonus = alignment >= 88 && speedScore >= 92 ? Math.round((alignment + speedScore - 180) / 7) : 0;
-  return Math.min(normalScore + Math.max(0, bonus), 99);
+  return Math.round(clamp(base - incompletePenalty, 30, 99));
 }
 
 function scoreSpeed(seconds) {
