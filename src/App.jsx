@@ -785,11 +785,25 @@ function scoreTotal({
     completionControl * 0.19 +
     (speedScore / 100) * 0.07
   );
-  let total = 42 + (rawScore ** 1.85) * 57;
+  let total = 42 + (rawScore ** 1.78) * 57;
 
   if (lengthFit >= 0.35 && completionControl >= 0.24) {
     const effortFloor = 70 + completionControl * 9 + lengthFit * 5 + Math.min(coverageFit, pathAdherenceFit) * 3;
     total = Math.max(total, effortFloor);
+  }
+
+  if (completionControl >= 0.78 && drawingQuality >= 0.72 && lengthFit >= 0.55) {
+    total += clamp(
+      (completionControl - 0.78) * 7 +
+      (drawingQuality - 0.72) * 8 +
+      (lengthFit - 0.55) * 3,
+      0,
+      3,
+    );
+  }
+
+  if (completionControl >= 0.9 && drawingQuality >= 0.84) {
+    total += 1;
   }
 
   if (lengthFit < 0.22 || (coverageFit < 0.12 && pathAdherenceFit < 0.12)) {
