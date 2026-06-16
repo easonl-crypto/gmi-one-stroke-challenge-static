@@ -542,40 +542,41 @@ function scoreAttempt(points, elapsedMs, mockScores) {
     distance(userSample[0], targetSample[0]) + distance(userSample.at(-1), targetSample.at(-1))
   ) / 2;
   const lengthRatio = clamp(pathLength(normalizedUser) / pathLength(targetPath), 0, 1.5);
-  const onPathRatio = ratioWithin(userToTargetDistances, 0.13);
-  const coverageRatio = ratioWithin(targetToUserDistances, 0.145);
-  const progressFit = clamp(1 - orderedDistance / 0.39, 0, 1);
-  const endpointFit = clamp(1 - endpointDistance / 0.42, 0, 1);
-  const offPathFit = clamp(1 - percentile(userToTargetDistances, 0.9) / 0.42, 0, 1);
-  const lengthFit = clamp(1 - Math.abs(1 - Math.min(lengthRatio, 1.25)) / 0.7, 0, 1);
-  const completionFit = clamp((coverageRatio - 0.28) / 0.58, 0, 1) * clamp(lengthRatio / 0.86, 0, 1);
-  const rawAlignment = Math.round(
-    clamp(
-      (
-        progressFit * 0.2 +
-        coverageRatio * 0.3 +
-        onPathRatio * 0.2 +
-        offPathFit * 0.12 +
-        lengthFit * 0.12 +
-        endpointFit * 0.06
-      ) * 100,
-      8,
-      99,
-    ),
+  const looseOnPathRatio = ratioWithin(userToTargetDistances, 0.13);
+  const looseCoverageRatio = ratioWithin(targetToUserDistances, 0.145);
+  const tightOnPathRatio = ratioWithin(userToTargetDistances, 0.045);
+  const tightCoverageRatio = ratioWithin(targetToUserDistances, 0.055);
+  const progressFit = clamp(1 - orderedDistance / 0.3, 0, 1);
+  const endpointFit = clamp(1 - endpointDistance / 0.32, 0, 1);
+  const offPathFit = clamp(1 - percentile(userToTargetDistances, 0.9) / 0.2, 0, 1);
+  const lengthFit = clamp(1 - Math.abs(1 - Math.min(lengthRatio, 1.18)) / 0.5, 0, 1);
+  const coverageFit = (
+    clamp((looseCoverageRatio - 0.12) / 0.62, 0, 1) * 0.5 +
+    clamp((tightCoverageRatio - 0.05) / 0.55, 0, 1) * 0.5
   );
-  const coverageCap = scoreCoverageCap(coverageRatio);
-  const lengthCap = scoreLengthCap(lengthRatio);
-  const completionCap = Math.round(38 + completionFit * 61);
-  const alignment = Math.round(
-    Math.min(rawAlignment, coverageCap, lengthCap, completionCap),
+  const pathAdherenceFit = (
+    clamp((looseOnPathRatio - 0.08) / 0.52, 0, 1) * 0.5 +
+    clamp((tightOnPathRatio - 0.04) / 0.56, 0, 1) * 0.5
   );
+  const drawingQuality = (
+    coverageFit * 0.29 +
+    pathAdherenceFit * 0.25 +
+    progressFit * 0.18 +
+    offPathFit * 0.15 +
+    lengthFit * 0.08 +
+    endpointFit * 0.05
+  );
+  const completionControl = coverageFit * 0.52 + pathAdherenceFit * 0.3 + lengthFit * 0.18;
+  const alignment = Math.round(clamp(drawingQuality * 100, 8, 99));
   const speedScore = scoreSpeed(elapsedMs / 1000);
   const total = scoreTotal({
     alignment,
     speedScore,
-    coverageRatio,
-    lengthRatio,
-    onPathRatio,
+    drawingQuality,
+    completionControl,
+    coverageFit,
+    pathAdherenceFit,
+    lengthFit,
   });
   const allScores = [...mockScores, total].sort((a, b) => b - a);
   const rank = allScores.indexOf(total) + 1;
@@ -771,37 +772,28 @@ function percentile(values, ratio) {
   return sorted[Math.min(sorted.length - 1, Math.floor((sorted.length - 1) * ratio))];
 }
 
-function scoreCoverageCap(coverageRatio) {
-  if (coverageRatio < 0.18) return 58;
-  if (coverageRatio < 0.32) return 70;
-  if (coverageRatio < 0.48) return 82;
-  if (coverageRatio < 0.62) return 91;
-  return 99;
-}
-
-function scoreLengthCap(lengthRatio) {
-  if (lengthRatio < 0.24) return 55;
-  if (lengthRatio < 0.4) return 68;
-  if (lengthRatio < 0.58) return 82;
-  if (lengthRatio < 0.72) return 91;
-  return 99;
-}
-
-function scoreTotal({ alignment, speedScore, coverageRatio, lengthRatio, onPathRatio }) {
-  const completionScore = clamp(
-    (
-      clamp(coverageRatio, 0, 0.75) / 0.75 * 0.56 +
-      clamp(lengthRatio, 0, 0.85) / 0.85 * 0.28 +
-      clamp(onPathRatio, 0, 0.55) / 0.55 * 0.16
-    ) * 100,
-    0,
-    100,
+function scoreTotal({
+  speedScore,
+  drawingQuality,
+  completionControl,
+  coverageFit,
+  pathAdherenceFit,
+  lengthFit,
+}) {
+  const rawScore = (
+    drawingQuality * 0.81 +
+    completionControl * 0.12 +
+    (speedScore / 100) * 0.07
   );
-  const quality = alignment * 0.45 + speedScore * 0.2 + completionScore * 0.35;
-  const experienceScore = 68 + quality * 0.3;
-  const incompletePenalty = coverageRatio < 0.18 || lengthRatio < 0.26 || onPathRatio < 0.08 ? 10 : 0;
+  let total = 35 + rawScore * 63;
 
-  return Math.round(clamp(experienceScore - incompletePenalty, 56, 98));
+  if (coverageFit < 0.22 || pathAdherenceFit < 0.15 || lengthFit < 0.32) {
+    total -= 12;
+  } else if (coverageFit < 0.38 || pathAdherenceFit < 0.3 || lengthFit < 0.5) {
+    total -= 5;
+  }
+
+  return Math.round(clamp(total, 28, 99));
 }
 
 function scoreSpeed(seconds) {
