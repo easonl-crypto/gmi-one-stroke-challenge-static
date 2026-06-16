@@ -221,23 +221,23 @@ export function App() {
     ctx.fillRect(0, 0, w, h);
     ctx.fillStyle = '#ffffff';
     ctx.font = '800 58px Arial, "Microsoft YaHei", sans-serif';
-    ctx.fillText('GMI Cloud Logo 焕新！', 52, 128);
+    ctx.fillText('GMI Cloud Logo 鐒曟柊锛?, 52, 128);
     drawPosterLockup(ctx, 752, 72, 250, 56);
 
     ctx.font = '800 42px Arial, "Microsoft YaHei", sans-serif';
-    ctx.fillText('我的一笔挑战得分', 78, 224);
+    ctx.fillText('鎴戠殑涓€绗旀寫鎴樺緱鍒?, 78, 224);
     ctx.font = '700 94px Arial, "Microsoft YaHei", sans-serif';
     ctx.fillText(`${result.total}`, 78, 318);
-    ctx.fillText('分', 78 + ctx.measureText(`${result.total}`).width + 10, 318);
+    ctx.fillText('鍒?, 78 + ctx.measureText(`${result.total}`).width + 10, 318);
     ctx.font = '500 34px Arial, "Microsoft YaHei", sans-serif';
     ctx.fillStyle = ACCENT_COLOR;
-    ctx.fillText(`打败 ${result.beaten}% 的挑战者`, 84, 372);
+    ctx.fillText(`鎵撹触 ${result.beaten}% 鐨勬寫鎴樿€卄, 84, 372);
 
-    drawPosterStat(ctx, 84, 410, '用时', `${result.time}s`);
-    drawPosterStat(ctx, 384, 410, '对齐度', `${result.alignment}%`);
-    drawPosterStat(ctx, 684, 410, '速度分', `${result.speedScore}`);
+    drawPosterStat(ctx, 84, 410, '鐢ㄦ椂', `${result.time}s`);
+    drawPosterStat(ctx, 384, 410, '瀵归綈搴?, `${result.alignment}%`);
+    drawPosterStat(ctx, 684, 410, '閫熷害鍒?, `${result.speedScore}`);
 
-    drawPosterCard(ctx, 64, 560, '我的一笔');
+    drawPosterCard(ctx, 64, 560, '鎴戠殑涓€绗?);
     drawPosterCard(ctx, 578, 560, 'GMI Cloud');
     drawPathIntoBox(ctx, pointsRef.current, 110, 690, 346, 280);
     drawPosterLogo(ctx, 628, 690, 330, 220);
@@ -261,16 +261,16 @@ export function App() {
           <div className="copy-panel">
             <p className="eyebrow">ONE STROKE LOGO CHALLENGE</p>
             <h1 className="hero-title">
-              <span className="hero-title-kicker">一笔画出</span>
+              <span className="hero-title-kicker">涓€绗旂敾鍑?/span>
               <span className="hero-title-brand">GMI Cloud</span>
             </h1>
             <div className="metrics-row" aria-live="polite">
               <div>
-                <span>计时</span>
+                <span>璁℃椂</span>
                 <strong>{formatTime(elapsedMs)}</strong>
               </div>
               <div>
-                <span>状态</span>
+                <span>鐘舵€?/span>
                 <strong>{phaseLabel(phase, isDrawing, pointCount)}</strong>
               </div>
             </div>
@@ -295,20 +295,18 @@ export function App() {
               />
               {phase === 'intro' && (
                 <button className="start-overlay" onClick={startChallenge}>
-                  开始挑战
-                </button>
+                  寮€濮嬫寫鎴?                </button>
               )}
               {phase === 'drawing' && pointCount === 0 && (
-                <div className="hint-chip">沿着 logo 白色主体一笔画完</div>
+                <div className="hint-chip">娌跨潃 logo 鐧借壊涓讳綋涓€绗旂敾瀹?/div>
               )}
             </div>
 
             <div className="actions">
               <button onClick={startChallenge} disabled={phase === 'drawing' && pointCount === 0}>
-                重新开始
-              </button>
+                閲嶆柊寮€濮?              </button>
               <button className="primary" onClick={finishChallenge} disabled={!canFinish}>
-                完成挑战
+                瀹屾垚鎸戞垬
               </button>
             </div>
           </div>
@@ -345,8 +343,8 @@ function ResultView({
       <div className="result-hero">
         <div>
           <p className="eyebrow">RESULT PAGE</p>
-          <h1>挑战完成</h1>
-          <p className="lead">logo 已显现，你的用时、对齐度和模拟排行榜成绩如下。</p>
+          <h1>鎸戞垬瀹屾垚</h1>
+          <p className="lead">logo 宸叉樉鐜帮紝浣犵殑鐢ㄦ椂銆佸榻愬害鍜屾ā鎷熸帓琛屾鎴愮哗濡備笅銆?/p>
         </div>
         <div className="result-canvas-card">
             <canvas
@@ -365,36 +363,35 @@ function ResultView({
         </div>
         <aside className="result-panel result-panel-large">
           <p className="eyebrow">SCORE</p>
-          <h2>{result.total}分</h2>
-          <p className="result-line">综合分</p>
+          <h2>{result.total}鍒?/h2>
+          <p className="result-line">缁煎悎鍒?/p>
           <div className="score-grid">
             <div>
-              <span>用时</span>
+              <span>鐢ㄦ椂</span>
               <strong>{result.time}s</strong>
             </div>
             <div>
-              <span>对齐度</span>
+              <span>瀵归綈搴?/span>
               <strong>{result.alignment}%</strong>
             </div>
             <div>
-              <span>速度分</span>
+              <span>閫熷害鍒?/span>
               <strong>{result.speedScore}</strong>
             </div>
             <div>
-              <span>排名</span>
+              <span>鎺掑悕</span>
               <strong>#{result.rank}</strong>
             </div>
             <div>
-              <span>打败</span>
+              <span>鎵撹触</span>
               <strong>{result.beaten}%</strong>
             </div>
           </div>
           <button className="share-button" onClick={onCreatePoster}>
-            分享我的战绩
+            鍒嗕韩鎴戠殑鎴樼哗
           </button>
           <button className="ghost-button" onClick={onRetry}>
-            再来一次
-          </button>
+            鍐嶆潵涓€娆?          </button>
         </aside>
       </div>
 
@@ -402,10 +399,10 @@ function ResultView({
         <div className="poster-modal">
           <div className="poster-copy">
             <p className="eyebrow">SHARE POSTER</p>
-            <h2>你的挑战海报已生成</h2>
+            <h2>浣犵殑鎸戞垬娴锋姤宸茬敓鎴?/h2>
           </div>
-          <img className="poster-image" src={posterUrl} alt="GMI 一笔挑战海报" />
-          <button className="save-button">长按保存海报</button>
+          <img className="poster-image" src={posterUrl} alt="GMI 涓€绗旀寫鎴樻捣鎶? />
+          <button className="save-button">闀挎寜淇濆瓨娴锋姤</button>
         </div>
       )}
     </section>
@@ -616,10 +613,10 @@ function drawPosterQrBlock(ctx, qrImage) {
   ctx.fillStyle = '#ffffff';
   ctx.textAlign = 'center';
   ctx.font = '900 43px Arial, "Microsoft YaHei UI", "Microsoft YaHei", sans-serif';
-  ctx.fillText('敢不敢来试试？', 335, 1266);
+  ctx.fillText('鏁笉鏁㈡潵璇曡瘯锛?, 335, 1266);
   ctx.textAlign = 'left';
   ctx.font = '58px "Segoe UI Emoji", "Apple Color Emoji", Arial, sans-serif';
-  ctx.fillText('👉', 572, 1276);
+  ctx.fillText('馃憠', 572, 1276);
 
   ctx.fillStyle = '#ffffff';
   roundRect(ctx, 694, 1138, 252, 252, 26);
@@ -781,19 +778,24 @@ function scoreTotal({
   lengthFit,
 }) {
   const rawScore = (
-    drawingQuality * 0.81 +
-    completionControl * 0.12 +
+    drawingQuality * 0.74 +
+    completionControl * 0.19 +
     (speedScore / 100) * 0.07
   );
-  let total = 35 + rawScore * 63;
+  let total = 42 + (rawScore ** 1.85) * 57;
 
-  if (coverageFit < 0.22 || pathAdherenceFit < 0.15 || lengthFit < 0.32) {
-    total -= 12;
-  } else if (coverageFit < 0.38 || pathAdherenceFit < 0.3 || lengthFit < 0.5) {
+  if (lengthFit >= 0.35 && completionControl >= 0.24) {
+    const effortFloor = 70 + completionControl * 9 + lengthFit * 5 + Math.min(coverageFit, pathAdherenceFit) * 3;
+    total = Math.max(total, effortFloor);
+  }
+
+  if (lengthFit < 0.22 || (coverageFit < 0.12 && pathAdherenceFit < 0.12)) {
+    total -= 10;
+  } else if (coverageFit < 0.24 || pathAdherenceFit < 0.18 || lengthFit < 0.36) {
     total -= 5;
   }
 
-  return Math.round(clamp(total, 28, 99));
+  return Math.round(clamp(total, 42, 99));
 }
 
 function scoreSpeed(seconds) {
@@ -816,10 +818,10 @@ function formatTime(ms) {
 }
 
 function phaseLabel(phase, isDrawing, pointCount) {
-  if (phase === 'intro') return '待开始';
-  if (phase === 'result') return '已结算';
-  if (!pointCount) return '待起笔';
-  return isDrawing ? '绘制中' : '可结算';
+  if (phase === 'intro') return '寰呭紑濮?;
+  if (phase === 'result') return '宸茬粨绠?;
+  if (!pointCount) return '寰呰捣绗?;
+  return isDrawing ? '缁樺埗涓? : '鍙粨绠?;
 }
 
 function roundRect(ctx, x, y, width, height, radius) {
