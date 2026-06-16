@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.playwright-cli/
+.vite/
+npm-debug.log*
+data/
+output/
+tools/
+.env
+.env.*
